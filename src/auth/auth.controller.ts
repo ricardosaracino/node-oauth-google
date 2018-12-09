@@ -1,7 +1,5 @@
 import {Controller, Get, Next, Req, Res, UnauthorizedException} from '@nestjs/common';
-
-
-import * as passport from 'passport';
+import {AuthService} from "./auth.service";
 
 
 /**
@@ -12,10 +10,15 @@ import * as passport from 'passport';
  * https://github.com/GoogleCloudPlatform/nodejs-getting-started/blob/8bb3d70596cb0c1851cd587d393faa76bfad8f80/4-auth/app.js
  *
  * https://console.developers.google.com/apis/api/plus.googleapis.com/overview?project=decisive-triode-224921
+ *
+ * http://www.passportjs.org/docs/oauth2-api/
  */
 
 @Controller('auth')
 export class AuthController {
+
+    constructor(private readonly authService: AuthService) {
+    }
 
     @Get('login')
     public async login(@Req() req, @Res() res, @Next() next) {
@@ -26,43 +29,45 @@ export class AuthController {
             req.session.oauth2return = req.query.return;
         }
 
-
-// Start OAuth 2 flow using Passport.js
-        passport.authenticate('google', {scope: ['email', 'profile']}, function (err, user, info) {
-            if (err) return next(err);
-
-            console.log(err, user, info);
-
-            next('route');
-        })(req, res, next);
+        this.authService.authenticate(req, res, next);
     }
 
     @Get('google/callback')
     public async googleCallback(@Req() req, @Res() res, @Next() next) {
 
-        // This has GooglePassportMiddleware
+        // todo This has GooglePassportMiddleware make annotation
 
         console.log('google/callback');
 
         const redirect = req.session.oauth2return || 'http://localhost:4200/';
+
         delete req.session.oauth2return;
+
         res.redirect(redirect);
     }
 
-    @Get('secure')
-    public async function(@Req()req) {
+    @Get('user')
+    public async user(@Req()req) {
 
+        // todo make annotation
         if (!req.isAuthenticated()) {
             throw new UnauthorizedException();
         }
 
-        return {secure: true}
+        return {
+            status: 'success',
+            data: {user: req.user}
+        };
     }
-
 
     @Get('logout')
     public async logout(@Req() req, @Res() res) {
-        req.logout();
+
+        req.logout(); // session ... "passport":{}
+
+        //req.session.destroy();
+
+        res.redirect('/');
 
 
         return {
