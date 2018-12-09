@@ -1,4 +1,4 @@
-import {Controller, Get, Next, Post, Req, Res} from '@nestjs/common';
+import {Controller, Get, Next, Req, Res, UnauthorizedException} from '@nestjs/common';
 
 
 import * as passport from 'passport';
@@ -40,21 +40,30 @@ export class AuthController {
     @Get('google/callback')
     public async googleCallback(@Req() req, @Res() res, @Next() next) {
 
+        /// this has middleware
+
         console.log('google/callback');
+
+
+        //https://stackoverflow.com/questions/34732924/how-do-i-persist-a-session-using-oauth-2-0-after-authorization-through-a-third-p
+        req.session.user = {id: 'xxx-xxx-xxxxx'};
 
         // if commented out res.redirect(redirect);
         // "statusCode": 404,
         // "error": "Not Found",
         // "message": "Cannot GET /auth/google/callback?code=4/rgAOWnV-mb644WkHyqeAKRjEhJOldinyqZ0_RSa14Zyi1s_Jxz3B9TpDbRIp7ZizDnKByYXtqMjCVvApCVe-uEw&scope=email%20profile%20https://www.googleapis.com/auth/userinfo.email%20https://www.googleapis.com/auth/userinfo.profile"
 
-        const redirect = req.session.oauth2return || '/auth/login';
+        const redirect = req.session.oauth2return || 'http://localhost:4200/';
         delete req.session.oauth2return;
         res.redirect(redirect);
     }
 
     @Get('secure')
-    public async function() {
+    public async function(@Req()req) {
 
+        if (!req.isAuthenticated()) {
+            throw new UnauthorizedException();
+        }
 
         return {secure: true}
     }

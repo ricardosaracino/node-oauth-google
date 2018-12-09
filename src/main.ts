@@ -14,7 +14,8 @@ async function bootstrap() {
 
     app.use(session({
             store: new FileStore({}),
-            resave: false,
+
+        resave: false,
             saveUninitialized: false,
             secret: 'asdf',
             signed: true

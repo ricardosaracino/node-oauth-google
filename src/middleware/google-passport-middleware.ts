@@ -36,7 +36,13 @@ passport.use(new GoogleStrategy({
     // Extract the minimal profile information we need from the profile object
     // provided by Google
 
-    //console.log(accessToken, refreshToken, profile);
+
+    // todo SOMETHING COOL HERE ???
+
+
+    console.log('accessToken ', accessToken);
+    console.log('refreshToken ', refreshToken);
+    console.log('profile ', profile);
     console.log('passport cb');
     cb(null, extractProfile(profile));
 }));
