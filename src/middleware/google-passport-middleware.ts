@@ -32,29 +32,36 @@ passport.use(new GoogleStrategy({
     clientSecret: config.client_secret,
     callbackURL: config.redirect_uris,
     accessType: 'offline'
-}, (accessToken, refreshToken, profile, cb) => {
+}, (accessToken, refreshToken, profile, done) => {
     // Extract the minimal profile information we need from the profile object
     // provided by Google
 
 
     // todo SOMETHING COOL HERE ???
+    //http://www.passportjs.org/docs/google/
 
+    // User.findOrCreate({ googleId: profile.id }, function (err, user) {
+    //     return done(err, user);
+    // });
+
+
+    console.log('passport cb');
 
     console.log('accessToken ', accessToken);
     console.log('refreshToken ', refreshToken);
     console.log('profile ', profile);
-    console.log('passport cb');
-    cb(null, extractProfile(profile));
+
+    done(null, extractProfile(profile));
 }));
 
 
-passport.serializeUser((user, cb) => {
+passport.serializeUser((user, done) => {
     console.log('serializeUser');
-    cb(null, user);
+    done(null, user);
 });
-passport.deserializeUser((obj, cb) => {
+passport.deserializeUser((obj, done) => {
     console.log('deserializeUser');
-    cb(null, obj);
+    done(null, obj);
 });
 
 
@@ -62,9 +69,10 @@ passport.deserializeUser((obj, cb) => {
 export class GooglePassportMiddleware implements NestMiddleware {
     resolve(...args: any[]): MiddlewareFunction {
         return (req, res, next) => {
-            console.log('passport auth middleware');
-            passport.authenticate('google')(req, res, next);
-            next();
+
+            console.log('passport auth middleware'); // DONT call next
+
+            passport.authenticate('google', {failureRedirect: 'http://localhost:4200/login#ERROR'})(req, res, next);
         };
     }
 }

@@ -40,18 +40,9 @@ export class AuthController {
     @Get('google/callback')
     public async googleCallback(@Req() req, @Res() res, @Next() next) {
 
-        /// this has middleware
+        // This has GooglePassportMiddleware
 
         console.log('google/callback');
-
-
-        //https://stackoverflow.com/questions/34732924/how-do-i-persist-a-session-using-oauth-2-0-after-authorization-through-a-third-p
-        req.session.user = {id: 'xxx-xxx-xxxxx'};
-
-        // if commented out res.redirect(redirect);
-        // "statusCode": 404,
-        // "error": "Not Found",
-        // "message": "Cannot GET /auth/google/callback?code=4/rgAOWnV-mb644WkHyqeAKRjEhJOldinyqZ0_RSa14Zyi1s_Jxz3B9TpDbRIp7ZizDnKByYXtqMjCVvApCVe-uEw&scope=email%20profile%20https://www.googleapis.com/auth/userinfo.email%20https://www.googleapis.com/auth/userinfo.profile"
 
         const redirect = req.session.oauth2return || 'http://localhost:4200/';
         delete req.session.oauth2return;
@@ -72,6 +63,10 @@ export class AuthController {
     @Get('logout')
     public async logout(@Req() req, @Res() res) {
         req.logout();
-        res.redirect('/');
+
+
+        return {
+            status: 'success',
+        }
     }
 }
